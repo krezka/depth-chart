@@ -154,7 +154,7 @@ console.log('buyAcumulated', buyAcumulated);
 console.log(minPrice, maxPrice);
 console.log(minVolume, maxVolume);
 
-const totalWidth = 500, totalHeight = 200,
+const totalWidth = 500, totalHeight = 300,
       margin = {top: 20, right: 20, bottom: 30, left: 50},
       width = totalWidth - margin.left - margin.right,
       height = totalHeight - margin.top - margin.bottom;
@@ -171,34 +171,46 @@ const x = d3.scaleLinear()
     .domain([minPrice, maxPrice])
     .range([0, width]);  
 
-const y = d3.scaleLinear()
+const ySell = d3.scaleLinear()
     .domain([maxVolume, minVolume])
-    .range([0, height]);  
-  
-const areaGenerator = 
+    .range([0, height/2]);  
+
+const yBuy = d3.scaleLinear()
+    .domain([maxVolume, minVolume])
+    .range([height, height/2]);  
+ 
+const sellAreaGenerator = 
   d3.area()
   .x(function(o) { return x(o.price); })
-  .y1(function(o) { return y(o.volume); })  
+  .y1(function(o) { return ySell(o.volume); })  
   .curve(d3.curveStepAfter)
-  .y0(height);
+  .y0(height/2);
+
+const buyAreaGenerator = 
+  d3.area()
+  .x(function(o) { return x(o.price); })
+  .y1(function(o) { return yBuy(o.volume); })  
+  .curve(d3.curveStepAfter)
+  .y0(height/2);
 
 // sell
 svgContainer
   .append("g")  
   .append('path')
-  .attr('d', areaGenerator(sellAcumulated))
+  .attr('d', sellAreaGenerator(sellAcumulated))
   .style('fill-opacity', '0.4')
-  .style('stroke', '#006400')
-  .style('fill', 'green');
+  .style('stroke', '#8B0000')
+  .style('fill', 'red');
+
 
 // buy
 svgContainer
   .append("g")
   .append('path')
-  .attr('d', areaGenerator(buyAcumulated))
+  .attr('d', buyAreaGenerator(buyAcumulated))
   .style('fill-opacity', '0.4')  
-  .style('stroke', '#8B0000')
-  .style('fill', 'red');
+  .style('stroke', '#006400')
+  .style('fill', 'green');
   
 
 // price axis
@@ -210,12 +222,12 @@ svgContainer
 // volume axis
 svgContainer
   .append("g")
-  .call(d3.axisRight(y)); 
+  .call(d3.axisRight(yBuy)); 
 
 svgContainer
   .append("g")
   .attr("transform", "translate(" + width + " ,0)") 
-  .call(d3.axisLeft(y)); 
+  .call(d3.axisLeft(ySell)); 
 
   </script>
 </body>
